@@ -37,6 +37,18 @@ Acceptance tests require a `kubeconfig_test.yaml` file in the repository root:
 TF_ACC=1 go test ./internal/tests/... -v
 ```
 
+### Test Environment
+
+Le fichier kubeconfig pour gérer le cluster Harvester de test : `/root/workspace/TERRAFORM/TESTBACKUP/rke2.yaml`
+
+Pour lancer les tests avec ce cluster :
+```bash
+cp /root/workspace/TERRAFORM/TESTBACKUP/rke2.yaml ./kubeconfig_test.yaml
+TF_ACC=1 go test ./internal/tests/... -v
+```
+
+Le Terraform dans `/root/workspace/TERRAFORM/TESTBACKUP` permet de gérer la VM `test-vm2` qui peut être utilisée pour les tests manuels.
+
 ## Architecture
 
 ### Provider Overview
@@ -120,3 +132,48 @@ Tests use HashiCorp's testing framework in `internal/tests/`:
 4. Register in `internal/provider/provider.go` (ResourcesMap and DataSourcesMap)
 5. Add acceptance tests in `internal/tests/resource_<name>_test.go`
 6. Run `go generate` to update documentation
+
+## Harvester Upstream Guidelines
+
+Reference documentation from the main Harvester project:
+- [CONTRIBUTING.md](https://github.com/harvester/harvester/blob/master/CONTRIBUTING.md)
+- [DEVELOPER_GUIDE.md](https://github.com/harvester/harvester/blob/master/DEVELOPER_GUIDE.md)
+
+### Contribution Process
+
+1. **Find or create an issue first** - Every PR should link to at least one issue
+2. **Run validation before submitting**: `make validate` (golangci-lint)
+3. **Include test plan** in PR description
+4. **Sign off commits** with `Signed-off-by` line (use `git commit -s`)
+
+### Commit Message Format
+
+```
+<type>: <subject>
+
+<body>
+
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`
+
+### PR Requirements
+
+- Target `master` or `main` branch (check repo conventions)
+- Link to related issues
+- Provide clear description of changes
+- Include test coverage for new features
+
+### Harvester Architecture Reference
+
+The main Harvester project components (useful for understanding CRDs):
+- **Custom Resources**: `pkg/apis/` - Harvester Kubernetes API definitions
+- **Controllers**: `pkg/controller/master/` - implemented with rancher/wrangler
+- **Webhooks**: `pkg/webhook/resources/` - validation and mutation rules
+- **API Server**: `pkg/api` and `pkg/server` - built with rancher/apiserver
+
+### Support Channels
+
+- GitHub Issues: https://github.com/harvester/harvester/issues
+- Slack: `#harvester` channel on Rancher Users Slack
