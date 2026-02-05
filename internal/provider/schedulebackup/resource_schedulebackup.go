@@ -100,6 +100,11 @@ func findVMFromVolume(ctx context.Context, c *client.Client, volumeNameRaw, name
 // buildScheduleVMBackup creates a ScheduleVMBackup object from Terraform resource data.
 func buildScheduleVMBackup(vmNamespace, vmName, name, schedule string, retain int, labels map[string]interface{}) *harvsterv1.ScheduleVMBackup {
 	apiGroup := "kubevirt.io"
+	// MaxFailure must be less than Retain per Harvester webhook validation
+	maxFailure := retain - 1
+	if maxFailure < 1 {
+		maxFailure = 1
+	}
 	scheduleVMBackup := &harvsterv1.ScheduleVMBackup{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
@@ -108,7 +113,7 @@ func buildScheduleVMBackup(vmNamespace, vmName, name, schedule string, retain in
 		Spec: harvsterv1.ScheduleVMBackupSpec{
 			Cron:       schedule,
 			Retain:     retain,
-			MaxFailure: 3,
+			MaxFailure: maxFailure,
 			Suspend:    false,
 			VMBackupSpec: harvsterv1.VirtualMachineBackupSpec{
 				Type: "backup",
@@ -291,7 +296,11 @@ func resourceScheduleBackupUpdate(ctx context.Context, d *schema.ResourceData, m
 	schedule := d.Get(constants.FieldScheduleBackupSchedule).(string)
 	retain := d.Get(constants.FieldScheduleBackupRetain).(int)
 	enabled := d.Get(constants.FieldScheduleBackupEnabled).(bool)
-	maxFailure := 3
+	// MaxFailure must be less than Retain per Harvester webhook validation
+	maxFailure := retain - 1
+	if maxFailure < 1 {
+		maxFailure = 1
+	}
 
 	// Create or update ScheduleVMBackup
 	apiGroup := "kubevirt.io"
