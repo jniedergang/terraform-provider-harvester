@@ -122,13 +122,13 @@ func resourcePCIDeviceCreate(ctx context.Context, d *schema.ResourceData, meta i
 	// Format: {nodeName}-{address with colons replaced by dashes}
 	// Example: harv1.home.lo-0000001f3 for address 0000:00:1f.3 on node harv1.home.lo
 	createdClaimNames := []string{}
-	
+
 	for _, pciAddress := range pciAddresses {
 		// Generate claim name: must match PCIDevice name format
 		// Convert address 0000:00:1f.3 to 0000001f3 (remove colons and dots)
 		addressPart := strings.ReplaceAll(strings.ReplaceAll(pciAddress, ":", ""), ".", "")
 		claimName := fmt.Sprintf("%s-%s", nodeName, addressPart)
-		
+
 		// Build PCIDeviceClaim object
 		pcideviceClaim := &unstructured.Unstructured{
 			Object: map[string]interface{}{
@@ -153,7 +153,7 @@ func resourcePCIDeviceCreate(ctx context.Context, d *schema.ResourceData, meta i
 			createdClaimNames = append(createdClaimNames, claimName)
 			continue
 		}
-		
+
 		created, err := dynamicClient.Resource(pcideviceClaimGVR).Create(ctx, pcideviceClaim, metav1.CreateOptions{})
 		if err != nil {
 			if apierrors.IsAlreadyExists(err) {
@@ -163,7 +163,7 @@ func resourcePCIDeviceCreate(ctx context.Context, d *schema.ResourceData, meta i
 			}
 			return diag.FromErr(fmt.Errorf("failed to create PCIDeviceClaim %s (GVR: %s/%s/%s): %w", claimName, pcideviceClaimGVR.Group, pcideviceClaimGVR.Version, pcideviceClaimGVR.Resource, err))
 		}
-		
+
 		createdClaimNames = append(createdClaimNames, created.GetName())
 	}
 
@@ -218,9 +218,10 @@ func resourcePCIDeviceRead(ctx context.Context, d *schema.ResourceData, meta int
 	if err := d.Set(constants.FieldCommonNamespace, vmNamespace); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set(constants.FieldCommonName, claimName); err != nil {
-		return diag.FromErr(err)
-	}
+	// Note: We intentionally do NOT set the "name" field here.
+	// The PCIDeviceClaim name is auto-generated (format: nodename-address) and differs
+	// from the user-provided Terraform resource name. Setting it would cause drift.
+
 	if err := d.Set(constants.FieldPCIDeviceVMName, helper.BuildNamespacedName(vmNamespace, vmName)); err != nil {
 		return diag.FromErr(err)
 	}
@@ -373,4 +374,3 @@ func resourcePCIDeviceDelete(ctx context.Context, d *schema.ResourceData, meta i
 	d.SetId("")
 	return nil
 }
-
