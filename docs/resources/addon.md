@@ -39,22 +39,22 @@ resource "harvester_addon" "vm_import_controller" {
 
 ### Optional
 
+- `chart` (String) Helm chart name for the addon. Override to install custom or experimental addons.
 - `description` (String) Any text you want that better describes this resource
 - `enabled` (Boolean)
 - `labels` (Map of String)
 - `namespace` (String)
+- `repo` (String) Helm repository URL for the addon chart. Override to install custom or experimental addons.
 - `tags` (Map of String)
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `values_content` (String)
+- `version` (String) Helm chart version for the addon. Override to install a specific version.
 
 ### Read-Only
 
-- `chart` (String)
 - `id` (String) The ID of this resource.
 - `message` (String)
-- `repo` (String)
 - `state` (String)
-- `version` (String)
 
 <a id="nestedblock--timeouts"></a>
 ### Nested Schema for `timeouts`

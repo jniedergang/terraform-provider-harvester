@@ -20,16 +20,22 @@ func Schema() map[string]*schema.Schema {
 			Computed: true,
 		},
 		constants.FieldAddonRepo: {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "Helm repository URL for the addon chart. Override to install custom or experimental addons.",
 		},
 		constants.FieldAddonChart: {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "Helm chart name for the addon. Override to install custom or experimental addons.",
 		},
 		constants.FieldAddonVersion: {
-			Type:     schema.TypeString,
-			Computed: true,
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "Helm chart version for the addon. Override to install a specific version.",
 		},
 	}
 	util.NamespacedSchemaWrap(s, true)

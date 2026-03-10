@@ -2,10 +2,12 @@ package addon
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	harvsterv1 "github.com/harvester/harvester/pkg/apis/harvesterhci.io/v1beta1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,10 +31,10 @@ func ResourceAddon() *schema.Resource {
 		},
 		Schema: Schema(),
 		Timeouts: &schema.ResourceTimeout{
-			Create:  schema.DefaultTimeout(2 * time.Minute),
+			Create:  schema.DefaultTimeout(10 * time.Minute),
 			Read:    schema.DefaultTimeout(2 * time.Minute),
-			Update:  schema.DefaultTimeout(2 * time.Minute),
-			Delete:  schema.DefaultTimeout(2 * time.Minute),
+			Update:  schema.DefaultTimeout(10 * time.Minute),
+			Delete:  schema.DefaultTimeout(10 * time.Minute),
 			Default: schema.DefaultTimeout(2 * time.Minute),
 		},
 	}
@@ -50,7 +52,13 @@ func resourceAddonCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	return updateAddon(ctx, c, d, namespace, obj)
+	if diags := updateAddon(ctx, c, d, namespace, obj); diags.HasError() {
+		return diags
+	}
+	if err := waitForAddonReady(ctx, c, d, namespace, name, schema.TimeoutCreate); err != nil {
+		return diag.FromErr(err)
+	}
+	return resourceAddonRead(ctx, d, meta)
 }
 
 func resourceAddonRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -90,7 +98,13 @@ func resourceAddonUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 		return diag.FromErr(err)
 	}
-	return updateAddon(ctx, c, d, namespace, obj)
+	if diags := updateAddon(ctx, c, d, namespace, obj); diags.HasError() {
+		return diags
+	}
+	if err := waitForAddonReady(ctx, c, d, namespace, name, schema.TimeoutUpdate); err != nil {
+		return diag.FromErr(err)
+	}
+	return resourceAddonRead(ctx, d, meta)
 }
 
 // The addon cannot be deleted. It can only be disabled.
@@ -133,6 +147,47 @@ func updateAddon(ctx context.Context, c *client.Client, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 	return diag.FromErr(resourceAddonImport(d, newAddon))
+}
+
+func waitForAddonReady(ctx context.Context, c *client.Client, d *schema.ResourceData, namespace, name, timeoutKey string) error {
+	enabled := d.Get(constants.FieldAddonEnabled).(bool)
+	if !enabled {
+		return nil
+	}
+	stateConf := &retry.StateChangeConf{
+		Pending: []string{
+			string(harvsterv1.AddonEnabling),
+			string(harvsterv1.AddonUpdating),
+			string(harvsterv1.AddonInitState),
+		},
+		Target: []string{
+			string(harvsterv1.AddonDeployed),
+		},
+		Refresh:    addonStateRefresh(ctx, c, namespace, name),
+		Timeout:    d.Timeout(timeoutKey),
+		Delay:      5 * time.Second,
+		MinTimeout: 3 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func addonStateRefresh(ctx context.Context, c *client.Client, namespace, name string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		obj, err := c.HarvesterClient.HarvesterhciV1beta1().Addons(namespace).Get(ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return nil, "", err
+		}
+		state := string(obj.Status.Status)
+		if state == "" {
+			state = string(harvsterv1.AddonInitState)
+		}
+		// Check for operation failure
+		if harvsterv1.AddonOperationFailed.IsTrue(obj) {
+			return obj, state, fmt.Errorf("addon %s/%s deployment failed", namespace, name)
+		}
+		return obj, state, nil
+	}
 }
 
 func resourceAddonImport(d *schema.ResourceData, obj *harvsterv1.Addon) error {

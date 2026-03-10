@@ -31,14 +31,14 @@ data "harvester_addon" "pcidevices_controller" {
 
 ### Read-Only
 
-- `chart` (String)
+- `chart` (String) Helm chart name for the addon. Override to install custom or experimental addons.
 - `description` (String) Any text you want that better describes this resource
 - `enabled` (Boolean)
 - `id` (String) The ID of this resource.
 - `labels` (Map of String)
 - `message` (String)
-- `repo` (String)
+- `repo` (String) Helm repository URL for the addon chart. Override to install custom or experimental addons.
 - `state` (String)
 - `tags` (Map of String)
 - `values_content` (String)
-- `version` (String)
+- `version` (String) Helm chart version for the addon. Override to install a specific version.

@@ -21,7 +21,10 @@ func (c *Constructor) Setup() util.Processors {
 		Labels(&c.Addon.Labels).
 		Description(&c.Addon.Annotations).
 		Bool(constants.FieldAddonEnabled, &c.Addon.Spec.Enabled, false).
-		String(constants.FieldAddonValuesContent, &c.Addon.Spec.ValuesContent, false)
+		String(constants.FieldAddonValuesContent, &c.Addon.Spec.ValuesContent, false).
+		String(constants.FieldAddonRepo, &c.Addon.Spec.Repo, false).
+		String(constants.FieldAddonChart, &c.Addon.Spec.Chart, false).
+		String(constants.FieldAddonVersion, &c.Addon.Spec.Version, false)
 }
 
 func (c *Constructor) Validate() error {
