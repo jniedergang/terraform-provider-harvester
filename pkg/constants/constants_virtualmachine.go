@@ -57,6 +57,9 @@ const (
 	FieldTopologyKey                   = "topology_key" // e.g., kubernetes.io/hostname
 	FieldPodAffinityTerm               = "pod_affinity_term"
 
+	FieldVirtualMachineCPUSockets = "cpu_sockets"
+	FieldVirtualMachineCPUThreads = "cpu_threads"
+
 	StateVirtualMachineStarting = "Starting"
 	StateVirtualMachineRunning  = "Running"
 	StateVirtualMachineStopping = "Stopping"
