@@ -38,6 +38,7 @@ data "harvester_virtualmachine" "opensuse154" {
 ### Read-Only
 
 - `access_credentials` (List of Object) Access credentials for the VM (SSH public keys or user passwords) (see [below for nested schema](#nestedatt--access_credentials))
+- `clock` (List of Object) Clock and timer configuration for the guest (see [below for nested schema](#nestedatt--clock))
 - `cloudinit` (List of Object) (see [below for nested schema](#nestedatt--cloudinit))
 - `cpu` (Number)
 - `cpu_model` (String) CPU model for the virtual machine
@@ -50,9 +51,12 @@ data "harvester_virtualmachine" "opensuse154" {
 - `dns_config` (List of Object) DNS configuration for the VM pod (see [below for nested schema](#nestedatt--dns_config))
 - `dns_policy` (String) DNS policy for the VM pod: ClusterFirst, ClusterFirstWithHostNet, Default, or None
 - `efi` (Boolean)
+- `eviction_strategy` (String) Eviction strategy for the VM (None, LiveMigrate, LiveMigrateIfPossible, External)
 - `host_device` (List of Object) Attaches a host device to the VM (see [below for nested schema](#nestedatt--host_device))
 - `hostname` (String)
 - `hugepages` (String) Hugepages size for memory performance (2Mi or 1Gi)
+- `hyperv` (List of Object) Hyper-V enlightenments for Windows guests (see [below for nested schema](#nestedatt--hyperv))
+- `hyperv_passthrough` (Boolean) Enable all supported Hyper-V flags automatically. Mutually exclusive with hyperv block. VM will be non-migratable
 - `id` (String) The ID of this resource.
 - `input` (List of Object) (see [below for nested schema](#nestedatt--input))
 - `install_guest_agent` (Boolean) Install qemu-guest-agent via cloud-init. The agent is injected into cloudinit.user_data when user_data_base64 and user_data_secret_name are not set.
@@ -65,6 +69,7 @@ data "harvester_virtualmachine" "opensuse154" {
 - `node_affinity` (List of Object) Node affinity rules for scheduling VMs based on node labels (see [below for nested schema](#nestedatt--node_affinity))
 - `node_name` (String)
 - `node_selector` (Map of String) Node selector for scheduling the VM. The key is the label key and the value is the label value.
+- `os_type` (String) OS type annotation for KVM guest optimizations (e.g. linux, windows)
 - `pod_affinity` (List of Object) Pod affinity rules to co-locate VMs with matching pods (see [below for nested schema](#nestedatt--pod_affinity))
 - `pod_anti_affinity` (List of Object) Pod anti-affinity rules to separate VMs from matching pods (see [below for nested schema](#nestedatt--pod_anti_affinity))
 - `requests` (List of Object) Resource requests for the VM. When unset, Harvester's overcommit webhook manages these values. (see [below for nested schema](#nestedatt--requests))
@@ -82,6 +87,7 @@ For example: `sample-tag = sample` adds label `tag.harvesterhci.io/sample-tag: s
 For `ssh-user` tag, the value is added to `cloudinit.user_data` if:
 1. Both `cloudinit.user_data_base64` and `cloudinit.user_data_secret_name` are empty.
 2. There is no `user` field in `cloudinit.user_data`.
+- `termination_grace_period_seconds` (Number) Grace period in seconds before the VM is forcefully terminated
 - `toleration` (List of Object) Tolerations allow the VM to be scheduled on nodes with matching taints (see [below for nested schema](#nestedatt--toleration))
 - `tpm` (List of Object) (see [below for nested schema](#nestedatt--tpm))
 
@@ -109,6 +115,72 @@ Read-Only:
 Read-Only:
 
 - `secret_name` (String)
+
+
+
+<a id="nestedatt--clock"></a>
+### Nested Schema for `clock`
+
+Read-Only:
+
+- `timer` (List of Object) (see [below for nested schema](#nestedobjatt--clock--timer))
+- `timezone` (String)
+- `utc_offset_seconds` (Number)
+
+<a id="nestedobjatt--clock--timer"></a>
+### Nested Schema for `clock.timer`
+
+Read-Only:
+
+- `hpet` (List of Object) (see [below for nested schema](#nestedobjatt--clock--timer--hpet))
+- `hyperv` (List of Object) (see [below for nested schema](#nestedobjatt--clock--timer--hyperv))
+- `kvm` (List of Object) (see [below for nested schema](#nestedobjatt--clock--timer--kvm))
+- `pit` (List of Object) (see [below for nested schema](#nestedobjatt--clock--timer--pit))
+- `rtc` (List of Object) (see [below for nested schema](#nestedobjatt--clock--timer--rtc))
+
+<a id="nestedobjatt--clock--timer--hpet"></a>
+### Nested Schema for `clock.timer.hpet`
+
+Read-Only:
+
+- `enabled` (Boolean)
+- `tick_policy` (String)
+
+
+<a id="nestedobjatt--clock--timer--hyperv"></a>
+### Nested Schema for `clock.timer.hyperv`
+
+Read-Only:
+
+- `enabled` (Boolean)
+
+
+<a id="nestedobjatt--clock--timer--kvm"></a>
+### Nested Schema for `clock.timer.kvm`
+
+Read-Only:
+
+- `enabled` (Boolean)
+
+
+<a id="nestedobjatt--clock--timer--pit"></a>
+### Nested Schema for `clock.timer.pit`
+
+Read-Only:
+
+- `enabled` (Boolean)
+- `tick_policy` (String)
+
+
+<a id="nestedobjatt--clock--timer--rtc"></a>
+### Nested Schema for `clock.timer.rtc`
+
+Read-Only:
+
+- `enabled` (Boolean)
+- `tick_policy` (String)
+- `track` (String)
+
 
 
 
@@ -146,6 +218,8 @@ Read-Only:
 - `secret_name` (String)
 - `size` (String)
 - `storage_class_name` (String)
+- `sysprep_configmap_name` (String)
+- `sysprep_secret_name` (String)
 - `type` (String)
 - `volume_mode` (String)
 - `volume_name` (String)
@@ -177,6 +251,30 @@ Read-Only:
 
 - `device_name` (String)
 - `name` (String)
+
+
+<a id="nestedatt--hyperv"></a>
+### Nested Schema for `hyperv`
+
+Read-Only:
+
+- `evmcs` (Boolean)
+- `frequencies` (Boolean)
+- `ipi` (Boolean)
+- `reenlightenment` (Boolean)
+- `relaxed` (Boolean)
+- `reset` (Boolean)
+- `runtime` (Boolean)
+- `spinlocks` (Boolean)
+- `spinlocks_retries` (Number)
+- `synic` (Boolean)
+- `synictimer` (Boolean)
+- `synictimer_direct` (Boolean)
+- `tlbflush` (Boolean)
+- `vapic` (Boolean)
+- `vendorid` (Boolean)
+- `vendorid_value` (String)
+- `vpindex` (Boolean)
 
 
 <a id="nestedatt--input"></a>

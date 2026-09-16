@@ -84,12 +84,17 @@ Optional:
 - `boot_order` (Number)
 - `bus` (String)
 - `cache_mode` (String)
+- `configmap_name` (String) Name of a ConfigMap to mount as a disk volume
 - `container_image_name` (String)
+- `eject` (Boolean) Eject the CD-ROM disk by opening the tray. Only applies to cd-rom type disks.
 - `existing_volume_name` (String)
 - `hot_plug` (Boolean)
 - `image` (String)
+- `secret_name` (String) Name of a Secret to mount as a disk volume
 - `size` (String)
 - `storage_class_name` (String)
+- `sysprep_configmap_name` (String) Name of a ConfigMap containing Sysprep answer file (autounattend.xml) for Windows unattended setup
+- `sysprep_secret_name` (String) Name of a Secret containing Sysprep answer file (autounattend.xml) for Windows unattended setup
 - `type` (String)
 - `volume_mode` (String)
 - `volume_name` (String)
