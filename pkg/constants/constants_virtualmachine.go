@@ -29,6 +29,13 @@ const (
 	FieldVirtualMachineNodeSelector          = "node_selector"
 	FieldVirtualMachineCreateInitialSnapshot = "create_initial_snapshot"
 	FieldVirtualMachineHostDevice            = "host_device"
+	FieldVirtualMachineToleration            = "toleration"
+
+	FieldTolerationKey               = "key"
+	FieldTolerationOperator          = "operator"
+	FieldTolerationValue             = "value"
+	FieldTolerationEffect            = "effect"
+	FieldTolerationTolerationSeconds = "toleration_seconds"
 
 	// Node Affinity - Controls VM scheduling based on node labels
 	// Reference: https://docs.harvesterhci.io/v1.7/vm/index/#node-scheduling
