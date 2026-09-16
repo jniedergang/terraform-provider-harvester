@@ -326,6 +326,14 @@ please use %s instead of this deprecated field:
 			Default:     false,
 			Description: "Install qemu-guest-agent via cloud-init. The agent is injected into cloudinit.user_data when user_data_base64 and user_data_secret_name are not set.",
 		},
+		constants.FieldVirtualMachineAccessCredentials: {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: resourceAccessCredentialSchema(),
+			},
+			Description: "Access credentials for the VM (SSH public keys or user passwords)",
+		},
 	}
 	util.NamespacedSchemaWrap(s, false)
 	s[constants.FieldCommonTags].Description = "The tag is reflected as label on the VM.\n" +

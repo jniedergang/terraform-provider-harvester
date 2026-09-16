@@ -447,6 +447,41 @@ func (v *VMImporter) InstallGuestAgent() bool {
 	return false
 }
 
+func (v *VMImporter) AccessCredentials() []map[string]interface{} {
+	acs := v.VirtualMachine.Spec.Template.Spec.AccessCredentials
+	result := make([]map[string]interface{}, 0, len(acs))
+	for _, ac := range acs {
+		entry := map[string]interface{}{}
+		if ac.SSHPublicKey != nil {
+			ssh := map[string]interface{}{}
+			if ac.SSHPublicKey.Source.Secret != nil {
+				ssh[constants.FieldAccessCredentialSecretName] = ac.SSHPublicKey.Source.Secret.SecretName
+			}
+			pm := ac.SSHPublicKey.PropagationMethod
+			switch {
+			case pm.ConfigDrive != nil:
+				ssh[constants.FieldAccessCredentialPropagationMethod] = "configDrive"
+			case pm.NoCloud != nil:
+				ssh[constants.FieldAccessCredentialPropagationMethod] = "noCloud"
+			case pm.QemuGuestAgent != nil:
+				ssh[constants.FieldAccessCredentialPropagationMethod] = "qemuGuestAgent"
+				ssh[constants.FieldAccessCredentialUsers] = pm.QemuGuestAgent.Users
+			}
+			entry[constants.FieldAccessCredentialSSHPublicKey] = []interface{}{ssh}
+			entry[constants.FieldAccessCredentialUserPassword] = []interface{}{}
+		} else if ac.UserPassword != nil {
+			pw := map[string]interface{}{}
+			if ac.UserPassword.Source.Secret != nil {
+				pw[constants.FieldAccessCredentialSecretName] = ac.UserPassword.Source.Secret.SecretName
+			}
+			entry[constants.FieldAccessCredentialUserPassword] = []interface{}{pw}
+			entry[constants.FieldAccessCredentialSSHPublicKey] = []interface{}{}
+		}
+		result = append(result, entry)
+	}
+	return result
+}
+
 func (v *VMImporter) NodeName() string {
 	if v.VirtualMachineInstance == nil {
 		return ""
@@ -802,6 +837,7 @@ func ResourceVirtualMachineStateGetter(vm *kubevirtv1.VirtualMachine, vmi *kubev
 			constants.FieldVirtualMachineHugepages:                     vmImporter.HugepagesSize(),
 			constants.FieldVirtualMachineToleration:                    vmImporter.Tolerations(),
 			constants.FieldVirtualMachineInstallGuestAgent:             vmImporter.InstallGuestAgent(),
+			constants.FieldVirtualMachineAccessCredentials:             vmImporter.AccessCredentials(),
 		},
 	}, nil
 }
