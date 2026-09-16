@@ -24,6 +24,8 @@ import (
 	"github.com/harvester/terraform-provider-harvester/internal/provider/sriovdevice"
 	"github.com/harvester/terraform-provider-harvester/internal/provider/storageclass"
 	"github.com/harvester/terraform-provider-harvester/internal/provider/virtualmachine"
+	"github.com/harvester/terraform-provider-harvester/internal/provider/virtualmachinetemplate"
+	"github.com/harvester/terraform-provider-harvester/internal/provider/virtualmachinetemplateversion"
 	"github.com/harvester/terraform-provider-harvester/internal/provider/vlanconfig"
 	"github.com/harvester/terraform-provider-harvester/internal/provider/volume"
 	"github.com/harvester/terraform-provider-harvester/pkg/constants"
@@ -67,6 +69,8 @@ func Provider() *schema.Provider {
 			constants.ResourceTypeStorageClass:       storageclass.DataSourceStorageClass(),
 			constants.ResourceTypeVLANConfig:         vlanconfig.DataSourceVLANConfig(),
 			constants.ResourceTypeVirtualMachine:     virtualmachine.DataSourceVirtualMachine(),
+			constants.ResourceTypeVirtualMachineTemplate:        virtualmachinetemplate.DataSourceVirtualMachineTemplate(),
+			constants.ResourceTypeVirtualMachineTemplateVersion: virtualmachinetemplateversion.DataSourceVirtualMachineTemplateVersion(),
 			constants.ResourceTypeVolume:             volume.DataSourceVolume(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -87,6 +91,8 @@ func Provider() *schema.Provider {
 			constants.ResourceTypeStorageClass:       storageclass.ResourceStorageClass(),
 			constants.ResourceTypeVLANConfig:         vlanconfig.ResourceVLANConfig(),
 			constants.ResourceTypeVirtualMachine:     virtualmachine.ResourceVirtualMachine(),
+			constants.ResourceTypeVirtualMachineTemplate:        virtualmachinetemplate.ResourceVirtualMachineTemplate(),
+			constants.ResourceTypeVirtualMachineTemplateVersion: virtualmachinetemplateversion.ResourceVirtualMachineTemplateVersion(),
 			constants.ResourceTypeVolume:             volume.ResourceVolume(),
 		},
 		ConfigureContextFunc: providerConfig,
