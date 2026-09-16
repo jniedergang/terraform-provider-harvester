@@ -133,6 +133,8 @@ const (
 	FieldDiskAutoDelete         = "auto_delete"
 	FieldDiskVolumeName         = "volume_name"
 	FieldDiskEject              = "eject"
+	FieldDiskConfigMapName      = "configmap_name"
+	FieldDiskSecretName         = "secret_name"
 
 	AnnotationDiskAutoDelete = "terraform-provider-harvester-auto-delete"
 )

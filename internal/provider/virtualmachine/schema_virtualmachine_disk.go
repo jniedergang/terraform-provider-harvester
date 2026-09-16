@@ -116,6 +116,16 @@ func ResourceDiskSchema() map[string]*schema.Schema {
 			Default:     false,
 			Description: "Eject the CD-ROM disk by opening the tray. Only applies to cd-rom type disks.",
 		},
+		constants.FieldDiskConfigMapName: {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Name of a ConfigMap to mount as a disk volume",
+		},
+		constants.FieldDiskSecretName: {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Name of a Secret to mount as a disk volume",
+		},
 	}
 	return s
 }

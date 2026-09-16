@@ -404,6 +404,10 @@ func (v *VMImporter) Volume() ([]map[string]interface{}, []map[string]interface{
 				}
 			case volume.ContainerDisk != nil:
 				diskState[constants.FieldDiskContainerImageName] = volume.ContainerDisk.Image
+			case volume.ConfigMap != nil:
+				diskState[constants.FieldDiskConfigMapName] = volume.ConfigMap.Name
+			case volume.Secret != nil:
+				diskState[constants.FieldDiskSecretName] = volume.Secret.SecretName
 			default:
 				return nil, nil, fmt.Errorf("unsupported volume type found on volume %s. ", volume.Name)
 			}
