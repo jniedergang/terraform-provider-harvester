@@ -79,6 +79,8 @@ const (
 	FieldVirtualMachineHugepages         = "hugepages"
 	FieldVirtualMachineInstallGuestAgent = "install_guest_agent"
 	FieldVirtualMachineAccessCredentials = "access_credentials"
+	FieldVirtualMachineDNSPolicy         = "dns_policy"
+	FieldVirtualMachineDNSConfig         = "dns_config"
 
 	StateVirtualMachineStarting = "Starting"
 	StateVirtualMachineRunning  = "Running"
@@ -166,4 +168,12 @@ const (
 	FieldAccessCredentialSecretName        = "secret_name"        // #nosec G101
 	FieldAccessCredentialPropagationMethod = "propagation_method" // #nosec G101
 	FieldAccessCredentialUsers             = "users"
+)
+
+const (
+	FieldDNSConfigNameservers = "nameservers"
+	FieldDNSConfigSearches    = "searches"
+	FieldDNSConfigOptions     = "options"
+	FieldDNSOptionName        = "name"
+	FieldDNSOptionValue       = "value"
 )

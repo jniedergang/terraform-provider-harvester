@@ -793,6 +793,23 @@ func (c *Constructor) Setup() util.Processors {
 				return nil
 			},
 		},
+		{
+			Field: constants.FieldVirtualMachineDNSPolicy,
+			Parser: func(i interface{}) error {
+				if val := i.(string); val != "" {
+					vmBuilder.VirtualMachine.Spec.Template.Spec.DNSPolicy = corev1.DNSPolicy(val)
+				}
+				return nil
+			},
+		},
+		{
+			Field: constants.FieldVirtualMachineDNSConfig,
+			Parser: func(i interface{}) error {
+				r := i.(map[string]interface{})
+				vmBuilder.VirtualMachine.Spec.Template.Spec.DNSConfig = parseDNSConfig(r)
+				return nil
+			},
+		},
 	}
 	return append(processors, customProcessors...)
 }
@@ -884,6 +901,33 @@ func parseAccessCredential(r map[string]interface{}) (kubevirtv1.AccessCredentia
 	return kubevirtv1.AccessCredential{}, errors.New("access_credentials entry must have either ssh_public_key or user_password")
 }
 
+func parseDNSConfig(r map[string]interface{}) *corev1.PodDNSConfig {
+	config := &corev1.PodDNSConfig{}
+	if ns, ok := r[constants.FieldDNSConfigNameservers].([]interface{}); ok {
+		for _, n := range ns {
+			config.Nameservers = append(config.Nameservers, n.(string))
+		}
+	}
+	if ss, ok := r[constants.FieldDNSConfigSearches].([]interface{}); ok {
+		for _, s := range ss {
+			config.Searches = append(config.Searches, s.(string))
+		}
+	}
+	if opts, ok := r[constants.FieldDNSConfigOptions].([]interface{}); ok {
+		for _, o := range opts {
+			opt := o.(map[string]interface{})
+			dnsOpt := corev1.PodDNSConfigOption{
+				Name: opt[constants.FieldDNSOptionName].(string),
+			}
+			if val, ok := opt[constants.FieldDNSOptionValue].(string); ok && val != "" {
+				dnsOpt.Value = &val
+			}
+			config.Options = append(config.Options, dnsOpt)
+		}
+	}
+	return config
+}
+
 func Updater(c *client.Client, ctx context.Context, vm *kubevirtv1.VirtualMachine) util.Constructor {
 	vm.Spec.Template.Spec.Networks = []kubevirtv1.Network{}
 	vm.Spec.Template.Spec.Domain.Devices.TPM = nil
@@ -894,6 +938,8 @@ func Updater(c *client.Client, ctx context.Context, vm *kubevirtv1.VirtualMachin
 	vm.Spec.Template.Spec.Affinity = nil // Clear affinity to allow complete replacement
 	vm.Spec.Template.Spec.Tolerations = []corev1.Toleration{}
 	vm.Spec.Template.Spec.AccessCredentials = nil
+	vm.Spec.Template.Spec.DNSPolicy = ""
+	vm.Spec.Template.Spec.DNSConfig = nil
 	vm.Annotations[harvesterutil.AnnotationVolumeClaimTemplates] = "[]"
 	return newVMConstructor(c, ctx, &builder.VMBuilder{
 		VirtualMachine: vm,
