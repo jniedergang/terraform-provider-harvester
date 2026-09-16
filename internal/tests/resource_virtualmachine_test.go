@@ -50,6 +50,7 @@ type VMResourceBuilder struct {
 	evictionStrategy              string
 	terminationGracePeriodSeconds *int
 	osType                        string
+	hugepages                     string
 	networkConfig                 *NetworkConfig
 	diskConfig                    *DiskConfig
 	inputConfig                   *InputDeviceConfig
@@ -147,6 +148,11 @@ func (b *VMResourceBuilder) SetOSType(osType string) *VMResourceBuilder {
 	return b
 }
 
+func (b *VMResourceBuilder) SetHugepages(hugepages string) *VMResourceBuilder {
+	b.hugepages = hugepages
+	return b
+}
+
 func (b *VMResourceBuilder) SetNetworkConfig(name string, bootOrder int) *VMResourceBuilder {
 	b.networkConfig = &NetworkConfig{
 		Name:      name,
@@ -195,6 +201,10 @@ func (b *VMResourceBuilder) Build() string {
 	}
 	if b.osType != "" {
 		fmt.Fprintf(&sb, "\t%s = \"%s\"\n", constants.FieldVirtualMachineOSType, b.osType)
+	}
+
+	if b.hugepages != "" {
+		fmt.Fprintf(&sb, "\t%s = \"%s\"\n", constants.FieldVirtualMachineHugepages, b.hugepages)
 	}
 
 	if b.networkConfig != nil {
@@ -830,6 +840,31 @@ func TestAccVirtualMachine_runtime_options(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccVirtualMachineExists(ctx, testAccVirtualMachineResourceName, vm),
 					resource.TestCheckResourceAttr(testAccVirtualMachineResourceName, constants.FieldVirtualMachineEvictionStrategy, "None"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccVirtualMachine_hugepages(t *testing.T) {
+	var (
+		testAccVirtualMachineName         = "test-acc-hugepg-" + uuid.New().String()[:6]
+		testAccVirtualMachineResourceName = constants.ResourceTypeVirtualMachine + "." + testAccVirtualMachineName
+		vm                                = &kubevirtv1.VirtualMachine{}
+		ctx                               = context.Background()
+	)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVirtualMachineDestroy(ctx),
+		Steps: []resource.TestStep{
+			{
+				Config: NewVMResourceBuilder(testAccVirtualMachineName).
+					SetHugepages("2Mi").
+					Build(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccVirtualMachineExists(ctx, testAccVirtualMachineResourceName, vm),
+					resource.TestCheckResourceAttr(testAccVirtualMachineResourceName, constants.FieldVirtualMachineHugepages, "2Mi"),
 				),
 			},
 		},

@@ -92,6 +92,14 @@ func (v *VMImporter) SecureBoot() bool {
 	return v.EFI() && *v.VirtualMachine.Spec.Template.Spec.Domain.Firmware.Bootloader.EFI.SecureBoot
 }
 
+func (v *VMImporter) HugepagesSize() string {
+	memory := v.VirtualMachine.Spec.Template.Spec.Domain.Memory
+	if memory == nil || memory.Hugepages == nil {
+		return ""
+	}
+	return memory.Hugepages.PageSize
+}
+
 func (v *VMImporter) CPUSockets() int {
 	s := int(v.VirtualMachine.Spec.Template.Spec.Domain.CPU.Sockets)
 	if s == 0 {
@@ -741,6 +749,7 @@ func ResourceVirtualMachineStateGetter(vm *kubevirtv1.VirtualMachine, vmi *kubev
 			constants.FieldVirtualMachineEvictionStrategy:              vmImporter.EvictionStrategy(),
 			constants.FieldVirtualMachineTerminationGracePeriodSeconds: vmImporter.TerminationGracePeriodSeconds(),
 			constants.FieldVirtualMachineOSType:                        vmImporter.OSType(),
+			constants.FieldVirtualMachineHugepages:                     vmImporter.HugepagesSize(),
 		},
 	}, nil
 }
