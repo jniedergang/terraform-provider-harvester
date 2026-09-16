@@ -163,29 +163,6 @@ func testAccCreateConfigMap(t *testing.T, ctx context.Context, namespace, name s
 	})
 }
 
-// testAccCreateSecret creates a K8s Secret as a test prerequisite.
-func testAccCreateSecret(t *testing.T, ctx context.Context, namespace, name string, data map[string][]byte) {
-	t.Helper()
-	c, err := testAccProvider.Meta().(*config.Config).K8sClient()
-	if err != nil {
-		t.Fatalf("failed to get k8s client: %v", err)
-	}
-	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Data: data,
-	}
-	_, err = c.KubeClient.CoreV1().Secrets(namespace).Create(ctx, secret, metav1.CreateOptions{})
-	if err != nil {
-		t.Fatalf("failed to create test secret %s: %v", name, err)
-	}
-	t.Cleanup(func() {
-		_ = c.KubeClient.CoreV1().Secrets(namespace).Delete(ctx, name, metav1.DeleteOptions{}) //nolint:errcheck
-	})
-}
-
 // testAccCheckVMConfigMapVolume verifies the K8s VM object mounts the ConfigMap as a volume.
 func testAccCheckVMConfigMapVolume(ctx context.Context, n, configMapName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {

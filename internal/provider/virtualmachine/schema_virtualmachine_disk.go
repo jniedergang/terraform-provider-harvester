@@ -126,6 +126,16 @@ func ResourceDiskSchema() map[string]*schema.Schema {
 			Optional:    true,
 			Description: "Name of a Secret to mount as a disk volume",
 		},
+		constants.FieldDiskSysprepSecretName: {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Name of a Secret containing Sysprep answer file (autounattend.xml) for Windows unattended setup",
+		},
+		constants.FieldDiskSysprepConfigMapName: {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Name of a ConfigMap containing Sysprep answer file (autounattend.xml) for Windows unattended setup",
+		},
 	}
 	return s
 }
