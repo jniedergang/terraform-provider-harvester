@@ -60,6 +60,15 @@ const (
 	FieldVirtualMachineCPUSockets = "cpu_sockets"
 	FieldVirtualMachineCPUThreads = "cpu_threads"
 
+	FieldVirtualMachineEvictionStrategy              = "eviction_strategy"
+	FieldVirtualMachineTerminationGracePeriodSeconds = "termination_grace_period_seconds"
+	FieldVirtualMachineOSType                        = "os_type"
+
+	AnnotationOSType = "harvesterhci.io/os"
+
+	DefaultEvictionStrategy              = "LiveMigrateIfPossible"
+	DefaultTerminationGracePeriodSeconds = 30
+
 	StateVirtualMachineStarting = "Starting"
 	StateVirtualMachineRunning  = "Running"
 	StateVirtualMachineStopping = "Stopping"
