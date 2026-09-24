@@ -12,16 +12,19 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNIptablesEIPV4IP: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNIptablesEIPV6IP: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNIptablesEIPMacAddress: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNIptablesEIPNatGwDp: {
@@ -32,10 +35,12 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNIptablesEIPQoSPolicy: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNIptablesEIPExternalSubnet: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNIptablesEIPReady: {
 			Type:     schema.TypeBool,
