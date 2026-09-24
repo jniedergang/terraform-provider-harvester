@@ -12,6 +12,7 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNVipNamespace: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNVipSubnet: {
 			Type:     schema.TypeString,
@@ -21,25 +22,30 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNVipType: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNVipV4IP: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNVipV6IP: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNVipMacAddress: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNVipSelector: {
 			Type:     schema.TypeList,
 			Optional: true,
+			ForceNew: true,
 			Elem: &schema.Schema{
 				Type: schema.TypeString,
 			},
@@ -47,6 +53,7 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNVipAttachSubnets: {
 			Type:     schema.TypeList,
 			Optional: true,
+			ForceNew: true,
 			Elem: &schema.Schema{
 				Type: schema.TypeString,
 			},

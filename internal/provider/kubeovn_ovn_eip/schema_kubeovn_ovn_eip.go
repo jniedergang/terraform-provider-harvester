@@ -17,16 +17,19 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNOvnEipV4IP: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNOvnEipV6IP: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNOvnEipMacAddress: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 			Computed: true,
 		},
 		constants.FieldKubeOVNOvnEipType: {

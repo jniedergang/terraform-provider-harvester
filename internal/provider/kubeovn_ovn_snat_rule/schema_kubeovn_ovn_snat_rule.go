@@ -17,22 +17,27 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNOvnSnatVpcSubnet: {
 			Type:     schema.TypeString,
 			Required: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnSnatIPName: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnSnatVpc: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnSnatV4IpCidr: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnSnatV6IpCidr: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnSnatStatusReady: {
 			Type:     schema.TypeBool,
