@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/harvester/harvester/pkg/builder"
+
+	"github.com/harvester/terraform-provider-harvester/pkg/constants"
 )
 
 type StateGetter struct {
@@ -36,7 +38,7 @@ func GetLabels(labels map[string]string) map[string]string {
 		// automatically added by the KubeOVN controller.
 		if !strings.HasPrefix(key, builder.LabelPrefixHarvesterTag) &&
 			!strings.HasPrefix(key, builder.LabelAnnotationPrefixHarvester) &&
-			!strings.HasPrefix(key, "ovn.kubernetes.io/") {
+			!strings.HasPrefix(key, constants.LabelPrefixKubeOVN) {
 			nottags[key] = value
 		}
 	}
