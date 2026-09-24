@@ -13,24 +13,29 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNIptablesDnatEIP: {
 			Type:     schema.TypeString,
 			Required: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNIptablesDnatExternalPort: {
 			Type:     schema.TypeString,
 			Required: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNIptablesDnatProtocol: {
 			Type:         schema.TypeString,
 			Optional:     true,
+			ForceNew:     true,
 			Default:      "tcp",
 			ValidateFunc: validation.StringInSlice([]string{"tcp", "udp", "icmp"}, false),
 		},
 		constants.FieldKubeOVNIptablesDnatInternalIP: {
 			Type:     schema.TypeString,
 			Required: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNIptablesDnatInternalPort: {
 			Type:     schema.TypeString,
 			Required: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNIptablesDnatReady: {
 			Type:     schema.TypeBool,

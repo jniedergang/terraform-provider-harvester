@@ -12,10 +12,12 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNIptablesSnatEIP: {
 			Type:     schema.TypeString,
 			Required: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNIptablesSnatInternalCIDR: {
 			Type:     schema.TypeString,
 			Required: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNIptablesSnatReady: {
 			Type:     schema.TypeBool,
