@@ -18,23 +18,28 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldKubeOVNOvnFipIPType: {
 			Type:         schema.TypeString,
 			Optional:     true,
+			ForceNew:     true,
 			ValidateFunc: validation.StringInSlice([]string{"vip", "ip"}, false),
 		},
 		constants.FieldKubeOVNOvnFipIPName: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnFipVpc: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnFipV4IP: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnFipV6IP: {
 			Type:     schema.TypeString,
 			Optional: true,
+			ForceNew: true,
 		},
 		constants.FieldKubeOVNOvnFipStatusReady: {
 			Type:     schema.TypeBool,
