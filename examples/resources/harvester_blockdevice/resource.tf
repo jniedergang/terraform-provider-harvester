@@ -1,4 +1,4 @@
-# Adopt and provision a block device for Longhorn storage
+# Adopt a new disk discovered by the node disk manager and add it to Longhorn
 resource "harvester_blockdevice" "nvme_data" {
   name      = "blockdevice-pci-0000-04-00-0-abcdef123456"
   namespace = "longhorn-system"
@@ -16,8 +16,18 @@ resource "harvester_blockdevice" "nvme_data" {
   # Provisioned = device is formatted and used by Longhorn
   provision = true
 
-  # Force formatting even if the device has an existing filesystem
-  # force_formatted = true
+  # A new disk has no filesystem yet and must be formatted before it can be
+  # provisioned. Also required to reuse a disk that has a filesystem: its data
+  # is erased.
+  force_formatted = true
+
+  # Optional: Longhorn with the V1 engine is used when the block is omitted,
+  # like in the Harvester UI.
+  disk_provisioner {
+    longhorn {
+      engine_version = "LonghornV1"
+    }
+  }
 }
 
 # Adopt a device without provisioning (monitoring only)

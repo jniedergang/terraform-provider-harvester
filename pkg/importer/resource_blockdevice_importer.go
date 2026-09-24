@@ -3,6 +3,7 @@ package importer
 import (
 	"strings"
 
+	"github.com/harvester/harvester/pkg/builder"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/harvester/terraform-provider-harvester/pkg/constants"
@@ -188,14 +189,25 @@ func nestedInt64(m map[string]interface{}, key string) int64 {
 	}
 }
 
+// LegacyBlockDeviceTagPrefix is the label prefix earlier builds wrote tags with.
+// It is not the Harvester tag prefix, so such labels are cleaned up on update.
+const LegacyBlockDeviceTagPrefix = "tags.harvesterhci.io/"
+
+// IsBlockDeviceSystemLabel reports whether a label is managed by the node disk
+// manager or Harvester, or is a tag, rather than a user label.
+func IsBlockDeviceSystemLabel(key string) bool {
+	return key == "kubernetes.io/hostname" ||
+		strings.HasPrefix(key, "ndm.harvesterhci.io/") ||
+		strings.HasPrefix(key, builder.LabelPrefixHarvesterTag) ||
+		strings.HasPrefix(key, LegacyBlockDeviceTagPrefix) ||
+		strings.HasPrefix(key, "harvesterhci.io/")
+}
+
 // getBlockDeviceLabels filters out NDM-managed and harvester-managed labels.
 func getBlockDeviceLabels(labels map[string]string) map[string]string {
 	filtered := map[string]string{}
 	for key, value := range labels {
-		if key == "kubernetes.io/hostname" ||
-			strings.HasPrefix(key, "ndm.harvesterhci.io/") ||
-			strings.HasPrefix(key, "tags.harvesterhci.io/") ||
-			strings.HasPrefix(key, "harvesterhci.io/") {
+		if IsBlockDeviceSystemLabel(key) {
 			continue
 		}
 		filtered[key] = value

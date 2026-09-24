@@ -226,3 +226,24 @@ func TestBlockDeviceStateGetterMinimal(t *testing.T) {
 		t.Errorf("expected empty device_status, got %v", ds)
 	}
 }
+
+func TestBlockDeviceStateGetterTagsAreNotLabels(t *testing.T) {
+	obj := newFullBlockDevice()
+	obj.SetLabels(map[string]string{
+		"kubernetes.io/hostname":   "node1",
+		"tag.harvesterhci.io/role": "data",
+		"tier":                     "fast",
+	})
+	sg, err := ResourceBlockDeviceStateGetter(obj)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	labels := sg.States["labels"].(map[string]string)
+	if len(labels) != 1 || labels["tier"] != "fast" {
+		t.Errorf("labels = %v, want only tier=fast", labels)
+	}
+	tags := sg.States["tags"].(map[string]string)
+	if tags["role"] != "data" {
+		t.Errorf("tags = %v, want role=data", tags)
+	}
+}

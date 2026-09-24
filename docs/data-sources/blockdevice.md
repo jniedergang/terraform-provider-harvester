@@ -36,8 +36,8 @@ data "harvester_blockdevice" "nvme" {
 - `dev_path` (String) the device path of the disk, e.g. /dev/sda
 - `device_status` (List of Object) device hardware and filesystem status (see [below for nested schema](#nestedatt--device_status))
 - `device_tags` (List of String) device tags for provisioner, e.g. ["default", "small", "ssd"]
-- `disk_provisioner` (List of Object) provisioner configuration for the block device (see [below for nested schema](#nestedatt--disk_provisioner))
-- `force_formatted` (Boolean) force format the device to overwrite existing filesystem
+- `disk_provisioner` (List of Object) provisioner configuration for the block device; when `provision` is true and this block is omitted, the device is provisioned as a Longhorn V1 disk, like in the Harvester UI (see [below for nested schema](#nestedatt--disk_provisioner))
+- `force_formatted` (Boolean) format the device before provisioning it; required for a new disk without a filesystem, and to reuse a disk that already has one (its data is erased)
 - `id` (String) The ID of this resource.
 - `labels` (Map of String)
 - `message` (String)

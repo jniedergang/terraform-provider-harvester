@@ -1,6 +1,8 @@
 package blockdevice
 
 import (
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -30,7 +32,7 @@ func Schema() map[string]*schema.Schema {
 			Type:        schema.TypeBool,
 			Optional:    true,
 			Default:     false,
-			Description: "force format the device to overwrite existing filesystem",
+			Description: "format the device before provisioning it; required for a new disk without a filesystem, and to reuse a disk that already has one (its data is erased)",
 		},
 		constants.FieldBlockDeviceDeviceTags: {
 			Type:        schema.TypeList,
@@ -43,8 +45,9 @@ func Schema() map[string]*schema.Schema {
 		constants.FieldBlockDeviceProvisioner: {
 			Type:        schema.TypeList,
 			Optional:    true,
+			Computed:    true,
 			MaxItems:    1,
-			Description: "provisioner configuration for the block device",
+			Description: "provisioner configuration for the block device; when `provision` is true and this block is omitted, the device is provisioned as a Longhorn V1 disk, like in the Harvester UI",
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
 					constants.FieldBlockDeviceProvisionerLonghorn: {
@@ -57,16 +60,17 @@ func Schema() map[string]*schema.Schema {
 								constants.FieldBlockDeviceProvisionerLonghornEV: {
 									Type:         schema.TypeString,
 									Optional:     true,
-									Default:      "LonghornV2",
-									ValidateFunc: validation.StringInSlice([]string{"LonghornV1", "LonghornV2"}, false),
-									Description:  "engine version: LonghornV1 or LonghornV2",
+									Default:      engineLonghornV1,
+									ValidateFunc: validation.StringInSlice([]string{engineLonghornV1, engineLonghornV2}, false),
+									Description:  "engine version: LonghornV1 (default) or LonghornV2",
 								},
 								constants.FieldBlockDeviceProvisionerLonghornDD: {
-									Type:         schema.TypeString,
-									Optional:     true,
-									Default:      "auto",
-									ValidateFunc: validation.StringInSlice([]string{"", "auto", "aio"}, false),
-									Description:  "disk driver for V2 data engine: auto or aio",
+									Type:             schema.TypeString,
+									Optional:         true,
+									Computed:         true,
+									ValidateFunc:     validation.StringInSlice([]string{"", "auto", "aio"}, false),
+									DiffSuppressFunc: diskDriverDiffSuppress,
+									Description:      "disk driver for the LonghornV2 engine: auto or aio (ignored for LonghornV1)",
 								},
 							},
 						},
@@ -187,4 +191,16 @@ func Schema() map[string]*schema.Schema {
 
 func DataSourceSchema() map[string]*schema.Schema {
 	return util.DataSourceSchemaWrap(Schema())
+}
+
+const (
+	engineLonghornV1 = "LonghornV1"
+	engineLonghornV2 = "LonghornV2"
+)
+
+// diskDriverDiffSuppress ignores disk_driver unless the Longhorn engine is V2:
+// the setting only exists for the V2 data engine and is not stored otherwise.
+func diskDriverDiffSuppress(k, _, _ string, d *schema.ResourceData) bool {
+	engine := d.Get(strings.TrimSuffix(k, constants.FieldBlockDeviceProvisionerLonghornDD) + constants.FieldBlockDeviceProvisionerLonghornEV)
+	return engine != engineLonghornV2
 }

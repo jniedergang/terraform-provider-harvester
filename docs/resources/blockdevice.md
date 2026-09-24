@@ -13,7 +13,7 @@ description: |-
 ## Example Usage
 
 ```terraform
-# Adopt and provision a block device for Longhorn storage
+# Adopt a new disk discovered by the node disk manager and add it to Longhorn
 resource "harvester_blockdevice" "nvme_data" {
   name      = "blockdevice-pci-0000-04-00-0-abcdef123456"
   namespace = "longhorn-system"
@@ -31,8 +31,18 @@ resource "harvester_blockdevice" "nvme_data" {
   # Provisioned = device is formatted and used by Longhorn
   provision = true
 
-  # Force formatting even if the device has an existing filesystem
-  # force_formatted = true
+  # A new disk has no filesystem yet and must be formatted before it can be
+  # provisioned. Also required to reuse a disk that has a filesystem: its data
+  # is erased.
+  force_formatted = true
+
+  # Optional: Longhorn with the V1 engine is used when the block is omitted,
+  # like in the Harvester UI.
+  disk_provisioner {
+    longhorn {
+      engine_version = "LonghornV1"
+    }
+  }
 }
 
 # Adopt a device without provisioning (monitoring only)
@@ -57,8 +67,8 @@ resource "harvester_blockdevice" "spare_disk" {
 
 - `description` (String) Any text you want that better describes this resource
 - `device_tags` (List of String) device tags for provisioner, e.g. ["default", "small", "ssd"]
-- `disk_provisioner` (Block List, Max: 1) provisioner configuration for the block device (see [below for nested schema](#nestedblock--disk_provisioner))
-- `force_formatted` (Boolean) force format the device to overwrite existing filesystem
+- `disk_provisioner` (Block List, Max: 1) provisioner configuration for the block device; when `provision` is true and this block is omitted, the device is provisioned as a Longhorn V1 disk, like in the Harvester UI (see [below for nested schema](#nestedblock--disk_provisioner))
+- `force_formatted` (Boolean) format the device before provisioning it; required for a new disk without a filesystem, and to reuse a disk that already has one (its data is erased)
 - `labels` (Map of String)
 - `namespace` (String)
 - `provision` (Boolean) whether the device should be provisioned for storage
@@ -88,8 +98,8 @@ Optional:
 
 Optional:
 
-- `disk_driver` (String) disk driver for V2 data engine: auto or aio
-- `engine_version` (String) engine version: LonghornV1 or LonghornV2
+- `disk_driver` (String) disk driver for the LonghornV2 engine: auto or aio (ignored for LonghornV1)
+- `engine_version` (String) engine version: LonghornV1 (default) or LonghornV2
 
 
 <a id="nestedblock--disk_provisioner--lvm"></a>
