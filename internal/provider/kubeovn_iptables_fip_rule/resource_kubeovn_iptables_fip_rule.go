@@ -116,6 +116,15 @@ func resourceKubeOVNIptablesFIPRuleDelete(ctx context.Context, d *schema.Resourc
 	if err != nil && !apierrors.IsNotFound(err) {
 		return diag.FromErr(err)
 	}
+	// The rule keeps its finalizer for a moment: wait until it is gone, or
+	// the kube-ovn webhook refuses to delete the EIP it still references.
+	err = util.WaitForDeletion(ctx, d.Timeout(schema.TimeoutDelete), 2*time.Second, func(ctx context.Context) error {
+		_, err := c.KubeOVNClient.KubeovnV1().IptablesFIPRules().Get(ctx, name, metav1.GetOptions{})
+		return err
+	})
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	d.SetId("")
 	return nil
 }
